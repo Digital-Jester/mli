@@ -67,7 +67,7 @@ function install-duino-coin {
             update-duino-coin
             ;;
           1)
-            exit 0
+            menu-crypto
             ;;
         esac
     else
@@ -166,7 +166,7 @@ function update-duino-coin {
             install-duino-coin
             ;;
           1)
-            exit 0
+            menu-crypto
             ;;
         esac
       fi
@@ -180,7 +180,7 @@ function install-xmrig-source {
             update-xmrig-source
             ;;
           1)
-            exit 0
+            menu-crypto
             ;;
         esac
     else
@@ -277,6 +277,8 @@ function install-xmrig-source {
         echo
         echo "Retrying... Build With Advanced Build Options."
         echo
+        echo "Backing Up... CMakeList.txt File."
+        echo
         cp $dir/xmrig/CMakeLists.txt $dir/xmrig/CMakeLists.txt.backup
         /bin/sed -i -- "/option(WITH_GHOSTRIDER/c\option(WITH_GHOSTRIDER      \"Enable GhostRider algorithm\" OFF)" "$dir/xmrig/CMakeLists.txt"
         /bin/sed -i -- "s/include(cmake/ghostrider.cmake)/#include(cmake/ghostrider.cmake)/" "$dir/xmrig/CMakeLists.txt"
@@ -285,7 +287,7 @@ function install-xmrig-source {
         ./build_deps.sh
         cd $dir/xmrig/build
         echo
-        echo "Retrying Compiling XMRig...."
+        echo "Retrying XMRig Compile...."
         echo
         cmake .. -DXMRIG_DEPS=scripts/deps && make
       fi
@@ -350,7 +352,7 @@ function install-xmrig-source {
 
       else
         echo
-        echo "Build Failed. Something Really Wrong!"
+        echo "Build Failed. Something Went Really Wrong!"
         echo
       fi      
     fi
@@ -381,14 +383,32 @@ function update-xmrig-source {
             install-xmrig-source
             ;;
           1)
-            exit 0
+            menu-crypto
             ;;
         esac
       fi
 }
 
+function install-omv {
+  echo
+  echo "Starting... OMV Setup."
+  update-system-packakges
+  echo
+  wget=$(which wget)
+  if [[ $wget == "" ]]; then
+    tools-wget
+  fi
+  sudo wget -O - https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install | sudo bash
+  # Print some finished text
+  echo
+  echo "Finished... OMV Setup."
+  echo
+}
 
+# ============================
 # ====== MENU FUNCTIONS ======
+# ============================
+
 function menu-main {
   # Main Menu
   exec 3>&1
@@ -405,11 +425,11 @@ function menu-main {
       ;;
     2)
       #OMV Install
-      #update-xmrig-source
+      install-omv
       ;;
     *)
       echo
-      echo "Exit MLI."
+      echo "Exit... My Linux Installer v$ver."
       echo
       exit 0
       ;;
@@ -482,5 +502,5 @@ whiptail --title "My Linux Installer v$ver" \
        https://idiy.duckdns.org
 " 15 48
 
-# Start Menu
+# Load Main Menu
 menu-main
