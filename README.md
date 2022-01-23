@@ -10,3 +10,10 @@
   Script currently includes;
    - Crypto Miners
    - OMV
+
+Useage
+======
+
+ wget https://raw.githubusercontent.com/Digital-Jester/mli/main/mli.sh<br>
+ chmod +x mli.sh<br>
+ ./mli.sh
