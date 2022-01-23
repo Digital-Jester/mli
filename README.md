@@ -10,6 +10,8 @@ Script currently includes;
 
 ## Useage
 
-1. wget \https://raw.githubusercontent.com/Digital-Jester/mli/main/mli.sh\
-2. chmod +x mli.sh
-3. sudo ./mli.sh
+> *wget https://raw.githubusercontent.com/Digital-Jester/mli/main/mli.sh*
+> 
+> *chmod +x mli.sh*
+> 
+> *sudo ./mli.sh*
