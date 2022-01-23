@@ -1,9 +1,14 @@
 #!/bin/bash
 
+if [[ $(id -u) -ne 0 ]]; then
+  echo "This script must be executed as root or using sudo."
+  exit 99
+fi
+
 ver="0.1 Beta"
 
-updated=0
-system=0
+updated=0 # Used to cotrol apt update
+system=0 # Used to control apt upgrade
 
 bashpath="$HOME/.bashrc"
 
@@ -14,10 +19,10 @@ function tools-wget {
   if [[ $wget == "" ]]; then
     printf "Installing wget... "
     if [[ $updated == 0 ]]; then
-      sudo apt-get update > /dev/null 2>&1
+      apt-get update > /dev/null 2>&1
       updated=1
     fi
-    sudo apt-get install wget -y > /dev/null 2>&1
+    apt-get install wget -y > /dev/null 2>&1
     wget=$(which wget)
       if [[ $wget == "" ]]; then
         echo "Failed. Install wget first."
@@ -32,10 +37,10 @@ function tools-screen {
   if [[ $screen == "" ]]; then
     printf "Installing screen... "
     if [[ $updated == 0 ]]; then
-      sudo apt-get update > /dev/null 2>&1
+      apt-get update > /dev/null 2>&1
       updated=1
     fi
-    sudo apt-get install screen -y > /dev/null 2>&1
+    apt-get install screen -y > /dev/null 2>&1
     screen=$(which screen)
       if [[ $screen == "" ]]; then
         echo "Failed. Install screen first."
@@ -51,10 +56,10 @@ function update-system-packakges {
     echo "Updating System Packages..."
     echo
       if [[ $updated == 0 ]]; then
-        sudo apt-get update > /dev/null 2>&1
+        apt-get update > /dev/null 2>&1
         updated=1
       fi
-      sudo apt-get full-upgrade -y && sudo apt-get autoremove -y
+      apt-get full-upgrade -y && apt-get autoremove -y
       system=1
     fi
 }
@@ -96,7 +101,7 @@ function install-duino-coin {
       echo
       echo "Installing Required Packages..."
       echo
-      sudo apt-get install python3 python3-pip git python3-pil python3-pil.imagetk -y
+      apt-get install python3 python3-pip git python3-pil python3-pil.imagetk -y
       echo
       echo "Clone Duino-Coin Repo...."
       echo
@@ -247,7 +252,7 @@ function install-xmrig-source {
       echo
       echo "Installing Required Packages..."
       echo
-      sudo apt-get install git build-essential cmake libuv1-dev libssl-dev libhwloc-dev -y
+      apt-get install git build-essential cmake libuv1-dev libssl-dev libhwloc-dev -y
       echo
       echo "Clone XMRig Repo...."
       echo
@@ -278,7 +283,7 @@ function install-xmrig-source {
         echo
         cp $dir/xmrig/CMakeLists.txt $dir/xmrig/CMakeLists.txt.backup
         /bin/sed -i -- "/option(WITH_GHOSTRIDER/c\option(WITH_GHOSTRIDER      \"Enable GhostRider algorithm\" OFF)" "$dir/xmrig/CMakeLists.txt"
-        /bin/sed -i -- "s/include(cmake/ghostrider.cmake)/#include(cmake/ghostrider.cmake)/" "$dir/xmrig/CMakeLists.txt"
+        /bin/sed -i -- "/include(cmake\/ghostrider.cmake)/c\#include(cmake\/ghostrider.cmake)" "$dir/xmrig/CMakeLists.txt"
         /bin/sed -i -- "/target_link_libraries(/c\target_link_libraries(\${CMAKE_PROJECT_NAME} \${XMRIG_ASM_LIBRARY} \${OPENSSL_LIBRARIES} \${UV_LIBRARIES} \${EXTRA_LIBS} \${CPUID_LIB} \${ARGON2_LIBRARY} \${ETHASH_LIBRARY})" "$dir/xmrig/CMakeLists.txt"
         cd $dir/xmrig/scripts
         ./build_deps.sh
@@ -473,10 +478,10 @@ whiptail=$(which whiptail)
 if [[ $whiptail == "" ]]; then
   printf "Installing whiptail... "
   if [[ $updated == 0 ]]; then
-    sudo apt-get update > /dev/null 2>&1
+    apt-get update > /dev/null 2>&1
     updated=1
   fi
-  sudo apt-get install whiptail -y > /dev/null 2>&1
+  apt-get install whiptail -y > /dev/null 2>&1
   whiptail=$(which whiptail)
   if [[ $whiptail == "" ]]; then
     echo "Failed. Aborting. Install whiptail first."
