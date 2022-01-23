@@ -1,7 +1,9 @@
 #!/bin/bash
 
 if [[ $(id -u) -ne 0 ]]; then
-  echo "This script must be executed as root or using sudo."
+  echo
+  echo "mli.sh must be executed as root or using sudo."
+  echo
   exit 99
 fi
 
@@ -13,6 +15,10 @@ system=0 # Used to control apt upgrade
 bashpath="$HOME/.bashrc"
 
 dir=$(pwd)
+
+# ======================================
+# ====== INSTALL/UPDATE FUNCTIONS ======
+# ======================================
 
 function tools-wget {
   wget=$(which wget)
