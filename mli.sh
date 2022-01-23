@@ -188,11 +188,8 @@ function install-xmrig-source {
       kernel=$(uname -a)
       if [[ ! "$kernel" == *"amd64"* ]] && [[ ! "$kernel" == *"arm64"* ]] && [[ ! "$kernel" == *"aarch64"* ]] && [[ ! "$kernel" == *"x86_64"* ]]; then
         whiptail --title "WARNING" \
-          --msgbox "
-          WARNING: 32-Bit OS a 64-Bit OS is required!
-          Upgrade your distro to 64-bit." 13 50
-
-        exit 0
+          --msgbox "WARNING: 32-Bit OS a 64-Bit OS is required!\n\nUpgrade your distro to 64-bit." 13 50
+        menu-crypto
       fi
 
       #Ask user Questions
