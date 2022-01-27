@@ -56,6 +56,12 @@ function tools-screen {
   fi
 }
 
+#htop
+
+#neofetch
+
+#nmap
+
 function update-system-packakges {
   if [[ $system == 0 ]]; then
     echo
@@ -252,6 +258,15 @@ function install-xmrig-source {
         config=2
         ;;
       esac
+      whiptail --title "Confirmation"  --yesno "\nDo you want to start XMRig at boot?" 12 50
+      case $? in
+        0)
+          cron=0
+          ;;
+        1)
+          cron=1
+          ;;
+      esac
       echo
       echo "Starting... XMRig Setup From Source."
       update-system-packakges
@@ -283,7 +298,7 @@ function install-xmrig-source {
         echo
         echo "Opps... Something Went Wrong."
         echo
-        echo "Retrying... Build With Advanced Build Options."
+        echo "Retrying... Building With Advanced Build Options."
         echo
         echo "Backing Up... CMakeList.txt File."
         echo
@@ -338,6 +353,32 @@ function install-xmrig-source {
           fi
         fi
 
+        
+        # Dump current crontab to tmp file, empty if doesn't exist
+        crontab -u $USER -l > ./cron.tmp
+        # Add a cron job, If user wanted.
+        if [[ $cron == 0 ]]; then
+          # Install Screen if needed
+          tools-screen
+          # Remove previous entry (in case it's an old version)
+          /bin/sed -i~ "\~@reboot screen -dmS xmrig $dir/xmrig/build/xmrig~d" ./cron.tmp
+          # Add xmrig to auto-load at boot if doesn't already exist in crontab
+          if ! grep -q "screen -dmS xmrig" ./cron.tmp; then
+            printf "\n@reboot screen -dmS xmrig $dir/xmrig/build/xmrig" >> ./cron.tmp
+            cronupdate=1
+          fi
+        else
+          # Just in case it was previously enabled, disable it
+          # as this user requested not to auto-run
+          /bin/sed -i~ "\~@reboot screen -dmS xmrig $dir/xmrig/build/xmrig~d" ./cron.tmp
+          cronupdate=1
+        fi
+        # Import revised crontab
+        if [[ $cronupdate == 1 ]]; then
+          crontab -u $USER ./cron.tmp
+        fi
+        # Remove temp file
+        rm ./cron.tmp
         # Be nice and reset the directory.
         cd $dir
 
