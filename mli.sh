@@ -1,20 +1,26 @@
 #!/bin/bash
 
-if [[ $(id -u) -ne 0 ]]; then
-  echo
-  echo "mli.sh must be executed as root or using sudo."
-  echo
-  exit 99
-fi
-
 ver="0.1 Beta"
 
 updated=0 # Used to cotrol apt update
 system=0 # Used to control apt upgrade
+distro=0 # Used to control apt upgrade
 
 bashpath="$HOME/.bashrc"
 
 dir=$(pwd)
+
+info=$(tput setaf 2)
+err=$(tput setaf 160)
+msg=$(tput setaf 214)
+rst=$(tput sgr0)
+
+if [[ $(id -u) -ne 0 ]]; then
+  echo
+  echo "${err}ERROR:${rst} mli.sh must be executed as root or using sudo."
+  echo
+  exit 99
+fi
 
 # ======================================
 # ====== INSTALL/UPDATE FUNCTIONS ======
@@ -31,9 +37,9 @@ function tools-wget {
     apt-get install wget -y > /dev/null 2>&1
     wget=$(which wget)
       if [[ $wget == "" ]]; then
-        echo "Failed. Install wget first."
+        echo "${err}Failed.${rst} Install wget first."
       else
-        echo "Success. wget Installed."
+        echo "${info}Success.${rst} wget Installed."
       fi    
   fi
 }
@@ -49,23 +55,71 @@ function tools-screen {
     apt-get install screen -y > /dev/null 2>&1
     screen=$(which screen)
       if [[ $screen == "" ]]; then
-        echo "Failed. Install screen first."
+        echo "${err}Failed.${rst} Install screen first."
       else
-        echo "Success. screen Installed."
+        echo "${info}Success.${rst} screen Installed."
       fi    
   fi
 }
 
-#htop
+function tools-htop {
+  htop=$(which htop)
+  if [[ $htop == "" ]]; then
+    printf "Installing htop... "
+    if [[ $updated == 0 ]]; then
+      apt-get update > /dev/null 2>&1
+      updated=1
+    fi
+    apt-get install htop -y > /dev/null 2>&1
+    htop=$(which htop)
+      if [[ $htop == "" ]]; then
+        echo "${err}Failed${rst} To Install htop."
+      else
+        echo "${info}Success.${rst} htop Installed."
+      fi    
+  fi
+}
 
-#neofetch
+function tools-neofetch {
+  neofetch=$(which neofetch)
+  if [[ $neofetch == "" ]]; then
+    printf "Installing neofetch... "
+    if [[ $updated == 0 ]]; then
+      apt-get update > /dev/null 2>&1
+      updated=1
+    fi
+    apt-get install neofetch -y > /dev/null 2>&1
+    neofetch=$(which neofetch)
+      if [[ $neofetch == "" ]]; then
+        echo "${err}Failed${rst} To Install neofetch."
+      else
+        echo "${info}Success.${rst} neofetch Installed."
+      fi    
+  fi
+}
 
-#nmap
+function tools-nmap {
+  nmap=$(which nmap)
+  if [[ $nmap == "" ]]; then
+    printf "Installing nmap... "
+    if [[ $updated == 0 ]]; then
+      apt-get update > /dev/null 2>&1
+      updated=1
+    fi
+    apt-get install nmap -y > /dev/null 2>&1
+    nmap=$(which nmap)
+      if [[ $nmap == "" ]]; then
+        echo "${err}Failed${rst} To Install nmap."
+      else
+        echo "${info}Success.${rst} nmap Installed."
+      fi    
+  fi
+}
 
 function update-system-packakges {
   if [[ $system == 0 ]]; then
     echo
-    echo "Updating System Packages..."
+    echo "${msg}Updating System Packages...${rst}"
     echo
       if [[ $updated == 0 ]]; then
         apt-get update > /dev/null 2>&1
@@ -73,6 +127,20 @@ function update-system-packakges {
       fi
       apt-get full-upgrade -y && apt-get autoremove -y
       system=1
+    fi
+}
+
+function update-system-distro {
+  if [[ $distro == 0 ]]; then
+    echo
+    echo "${msg}Updating System Distro...${rst}"
+    echo
+      if [[ $updated == 0 ]]; then
+        apt-get update > /dev/null 2>&1
+        updated=1
+      fi
+      apt-get dist-upgrade -y && apt-get autoremove -y
+      distro=1
     fi
 }
 
@@ -148,14 +216,14 @@ function install-duino-coin {
       fi
       # Print some finished text
       echo
-      echo "Finished... Dunio-Coin Setup."
+      echo "${info}Finished... Dunio-Coin Setup.${rst}"
       echo
       if [[ $addalias == 0 ]]; then
         echo "Alias Commands Added:"
         echo "====================="
         echo
-        echo "  pcminer = Starts Duino-Coin miner in PC mining mode."
-        echo "  avrminer = Starts Duino-Coin miner in AVR mining mode."
+        echo "  ${msg}pcminer${rst} = Starts Duino-Coin miner in PC mining mode."
+        echo "  ${msg}avrminer${rst} = Starts Duino-Coin miner in AVR mining mode."
         echo
         echo "(Logout and Login required to start using alias command.)"
         echo
@@ -167,14 +235,14 @@ function update-duino-coin {
 
       if [[ -e $dir/duino-coin/.git ]]; then
         echo
-        echo "Duino-Coin Install Found..."
+        echo "${info}Duino-Coin Install Found...${rst}"
         echo
-        echo "Starting... Dunio-Coin Update."
+        echo "${msg}Starting... Dunio-Coin Update.${rst}"
         echo
         cd $dir/duino-coin
         git pull
         echo
-        echo "Finished... Dunio-Coin Update."
+        echo "${info}Finished... Dunio-Coin Update.${rst}"
         echo
       else
         whiptail --title "ERROR"  --yesno "\nDid not find Duino-Coin installed.\nWould you like to install now?" 12 50
@@ -268,39 +336,39 @@ function install-xmrig-source {
           ;;
       esac
       echo
-      echo "Starting... XMRig Setup From Source."
+      echo "${info}Starting... XMRig Setup From Source.${rst}"
       update-system-packakges
       echo
-      echo "Installing Required Packages..."
+      echo "${msg}Installing Required Packages...${rst}"
       echo
       apt-get install git build-essential cmake libuv1-dev libssl-dev libhwloc-dev -y
       echo
-      echo "Clone XMRig Repo...."
+      echo "${msg}Clone XMRig Repo....${rst}"
       echo
       git clone https://github.com/xmrig/xmrig.git
       if [[ $donate == 0 ]]; then
         echo
-        echo "Disabling  Developer Donation...."
+        echo "${msg}Disabling  Developer Donation....${rst}"
         echo
         /bin/sed -i -- "/constexpr const int kDefaultDonateLevel =/c\constexpr const int kDefaultDonateLevel = 0;" "$dir/xmrig/src/donate.h"
         /bin/sed -i -- "/constexpr const int kMinimumDonateLevel =/c\constexpr const int kMinimumDonateLevel = 0;" "$dir/xmrig/src/donate.h"
       fi
       echo
-      echo "Building Directories...."
+      echo "${msg}Building Directories....${rst}"
       echo
       mkdir xmrig/build && cd xmrig/build
       echo
-      echo "Compiling XMRig...."
+      echo "${msg}Compiling XMRig....${rst}"
       echo
       cmake .. && make
 
       if [[ ! -e $dir/xmrig/build/xmrig ]]; then
         echo
-        echo "Opps... Something Went Wrong."
+        echo "${err}Opps... Something Went Wrong.${rst}"
         echo
-        echo "Retrying... Building With Advanced Build Options."
+        echo "${msg}Retrying... Building With Advanced Build Options.${rst}"
         echo
-        echo "Backing Up... CMakeList.txt File."
+        echo "${msg}Backing Up... CMakeList.txt File.${rst}"
         echo
         cp $dir/xmrig/CMakeLists.txt $dir/xmrig/CMakeLists.txt.backup
         /bin/sed -i -- "/option(WITH_GHOSTRIDER/c\option(WITH_GHOSTRIDER      \"Enable GhostRider algorithm\" OFF)" "$dir/xmrig/CMakeLists.txt"
@@ -310,7 +378,7 @@ function install-xmrig-source {
         ./build_deps.sh
         cd $dir/xmrig/build
         echo
-        echo "Retrying XMRig Compile...."
+        echo "${msg}Retrying XMRig Compile....${rst}"
         echo
         cmake .. -DXMRIG_DEPS=scripts/deps && make
       fi
@@ -318,14 +386,14 @@ function install-xmrig-source {
       if [[ -e $dir/xmrig/build/xmrig ]]; then
         #TEST FOR VERSION
         echo
-        echo "Build Sucessful..."
+        echo "${info}Build Sucessful...${rst}"
         echo
         ./xmrig --version
         echo
 
         # Add config.json, If user wanted.
         if [[ $config != 2 ]]; then
-          echo "Applying config.json To XMRig...."
+          echo "${msg}Applying config.json To XMRig....${rst}"
           echo
           if [[ $config == 1 ]]; then
             cp $dir/xmrig/src/config.json .
@@ -387,21 +455,21 @@ function install-xmrig-source {
         echo "Finished... XMRig Setup From Source."
         echo
         if [[ $addpath == 0 ]]; then
-          echo "XMRig added to \$PATH, no need to navigate to build dir to run miner"
+          echo "${msg}XMRig added to \$PATH, no need to navigate to build dir to run miner${rst}"
           echo
         fi
         if [[ $config != 2 ]]; then
-          echo "Don't forget to edit you config.json file."
+          echo "${msg}Don't forget to edit you config.json file.${rst}"
           echo "   nano ./xmrig/build/config.json"
           echo
-          echo "Configuration Wizard for config.json can be found at;"
+          echo "${msg}Configuration Wizard for config.json can be found at;${rst}"
           echo "   https://xmrig.com/wizard"
           echo
         fi
 
       else
         echo
-        echo "Build Failed. Something Went Really Wrong!"
+        echo "${err}Build Failed.${rst} Something Went Really Wrong!"
         echo
       fi      
     fi
@@ -412,17 +480,17 @@ function update-xmrig-source {
       if [[ -e $dir/xmrig/.git ]]; then
         xmrig-current-ver=$($dir/xmrig/build/xmrig --version | grep XMRig | sed "s/XMRig //")
         echo
-        echo "XMRig Install Found..."
+        echo "${info}XMRig Install Found...${rst}"
         echo
-        echo "Starting... XMRig Update."
+        echo "${msg}Starting... XMRig Update.${rst}"
         echo
         cd $dir/xmrig
         git pull
         cd $dir/xmrig/build
         echo
-        echo "Finished... XMRig Update."
+        echo "${info}Finished... XMRig Update.${rst}"
         echo
-        echo "Compiling XMRig...."
+        echo "${msg}Compiling XMRig....${rst}"
         echo
         cmake .. && make
       else
@@ -440,7 +508,7 @@ function update-xmrig-source {
 
 function install-omv {
   echo
-  echo "Starting... OMV Setup."
+  echo "${info}Starting...${rst} OMV Setup."
   update-system-packakges
   echo
   wget=$(which wget)
@@ -450,7 +518,7 @@ function install-omv {
   sudo wget -O - https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install | sudo bash
   # Print some finished text
   echo
-  echo "Finished... OMV Setup."
+  echo "${info}Finished...${rst} OMV Setup."
   echo
 }
 
@@ -531,10 +599,10 @@ if [[ $whiptail == "" ]]; then
   apt-get install whiptail -y > /dev/null 2>&1
   whiptail=$(which whiptail)
   if [[ $whiptail == "" ]]; then
-    echo "Failed. Aborting. Install whiptail first."
+    echo "${err}Failed. Aborting.${rst} Install whiptail first."
     exit 0
   else
-    echo "Success."
+    echo "${info}Success.${rst}"
   fi
 fi
 
