@@ -11,13 +11,13 @@ bashpath="$HOME/.bashrc"
 dir=$(pwd)
 
 info=$(tput setaf 2)
-err=$(tput setaf 160)
-msg=$(tput setaf 214)
+error=$(tput setaf 1)
+warn=$(tput setaf 3)
 rst=$(tput sgr0)
 
 if [[ $(id -u) -ne 0 ]]; then
   echo
-  echo "${err}ERROR:${rst} mli.sh must be executed as root or using sudo."
+  echo "${error}ERROR:${rst} mli.sh must be executed as root or using sudo."
   echo
   exit 99
 fi
@@ -37,7 +37,7 @@ function tools-wget {
     apt-get install wget -y > /dev/null 2>&1
     wget=$(which wget)
       if [[ $wget == "" ]]; then
-        echo "${err}Failed.${rst} Install wget first."
+        echo "${error}Failed.${rst} Install wget first."
       else
         echo "${info}Success.${rst} wget Installed."
       fi    
@@ -55,7 +55,7 @@ function tools-screen {
     apt-get install screen -y > /dev/null 2>&1
     screen=$(which screen)
       if [[ $screen == "" ]]; then
-        echo "${err}Failed.${rst} Install screen first."
+        echo "${error}Failed.${rst} Install screen first."
       else
         echo "${info}Success.${rst} screen Installed."
       fi    
@@ -73,7 +73,7 @@ function tools-htop {
     apt-get install htop -y > /dev/null 2>&1
     htop=$(which htop)
       if [[ $htop == "" ]]; then
-        echo "${err}Failed${rst} To Install htop."
+        echo "${error}Failed${rst} To Install htop."
       else
         echo "${info}Success.${rst} htop Installed."
       fi    
@@ -91,7 +91,7 @@ function tools-neofetch {
     apt-get install neofetch -y > /dev/null 2>&1
     neofetch=$(which neofetch)
       if [[ $neofetch == "" ]]; then
-        echo "${err}Failed${rst} To Install neofetch."
+        echo "${error}Failed${rst} To Install neofetch."
       else
         echo "${info}Success.${rst} neofetch Installed."
       fi    
@@ -109,7 +109,7 @@ function tools-nmap {
     apt-get install nmap -y > /dev/null 2>&1
     nmap=$(which nmap)
       if [[ $nmap == "" ]]; then
-        echo "${err}Failed${rst} To Install nmap."
+        echo "${error}Failed${rst} To Install nmap."
       else
         echo "${info}Success.${rst} nmap Installed."
       fi    
@@ -119,7 +119,7 @@ function tools-nmap {
 function update-system-packakges {
   if [[ $system == 0 ]]; then
     echo
-    echo "${msg}Updating System Packages...${rst}"
+    echo "${warn}Updating System Packages...${rst}"
     echo
       if [[ $updated == 0 ]]; then
         apt-get update > /dev/null 2>&1
@@ -133,7 +133,7 @@ function update-system-packakges {
 function update-system-distro {
   if [[ $distro == 0 ]]; then
     echo
-    echo "${msg}Updating System Distro...${rst}"
+    echo "${warn}Updating System Distro...${rst}"
     echo
       if [[ $updated == 0 ]]; then
         apt-get update > /dev/null 2>&1
@@ -222,8 +222,8 @@ function install-duino-coin {
         echo "Alias Commands Added:"
         echo "====================="
         echo
-        echo "  ${msg}pcminer${rst} = Starts Duino-Coin miner in PC mining mode."
-        echo "  ${msg}avrminer${rst} = Starts Duino-Coin miner in AVR mining mode."
+        echo "  ${warn}pcminer${rst} = Starts Duino-Coin miner in PC mining mode."
+        echo "  ${warn}avrminer${rst} = Starts Duino-Coin miner in AVR mining mode."
         echo
         echo "(Logout and Login required to start using alias command.)"
         echo
@@ -237,7 +237,7 @@ function update-duino-coin {
         echo
         echo "${info}Duino-Coin Install Found...${rst}"
         echo
-        echo "${msg}Starting... Dunio-Coin Update.${rst}"
+        echo "${warn}Starting... Dunio-Coin Update.${rst}"
         echo
         cd $dir/duino-coin
         git pull
@@ -339,36 +339,36 @@ function install-xmrig-source {
       echo "${info}Starting... XMRig Setup From Source.${rst}"
       update-system-packakges
       echo
-      echo "${msg}Installing Required Packages...${rst}"
+      echo "${warn}Installing Required Packages...${rst}"
       echo
       apt-get install git build-essential cmake libuv1-dev libssl-dev libhwloc-dev -y
       echo
-      echo "${msg}Clone XMRig Repo....${rst}"
+      echo "${warn}Clone XMRig Repo....${rst}"
       echo
       git clone https://github.com/xmrig/xmrig.git
       if [[ $donate == 0 ]]; then
         echo
-        echo "${msg}Disabling  Developer Donation....${rst}"
+        echo "${warn}Disabling  Developer Donation....${rst}"
         echo
         /bin/sed -i -- "/constexpr const int kDefaultDonateLevel =/c\constexpr const int kDefaultDonateLevel = 0;" "$dir/xmrig/src/donate.h"
         /bin/sed -i -- "/constexpr const int kMinimumDonateLevel =/c\constexpr const int kMinimumDonateLevel = 0;" "$dir/xmrig/src/donate.h"
       fi
       echo
-      echo "${msg}Building Directories....${rst}"
+      echo "${warn}Building Directories....${rst}"
       echo
       mkdir xmrig/build && cd xmrig/build
       echo
-      echo "${msg}Compiling XMRig....${rst}"
+      echo "${warn}Compiling XMRig....${rst}"
       echo
       cmake .. && make
 
       if [[ ! -e $dir/xmrig/build/xmrig ]]; then
         echo
-        echo "${err}Opps... Something Went Wrong.${rst}"
+        echo "${error}Opps... Something Went Wrong.${rst}"
         echo
-        echo "${msg}Retrying... Building With Advanced Build Options.${rst}"
+        echo "${warn}Retrying... Building With Advanced Build Options.${rst}"
         echo
-        echo "${msg}Backing Up... CMakeList.txt File.${rst}"
+        echo "${warn}Backing Up... CMakeList.txt File.${rst}"
         echo
         cp $dir/xmrig/CMakeLists.txt $dir/xmrig/CMakeLists.txt.backup
         /bin/sed -i -- "/option(WITH_GHOSTRIDER/c\option(WITH_GHOSTRIDER      \"Enable GhostRider algorithm\" OFF)" "$dir/xmrig/CMakeLists.txt"
@@ -378,7 +378,7 @@ function install-xmrig-source {
         ./build_deps.sh
         cd $dir/xmrig/build
         echo
-        echo "${msg}Retrying XMRig Compile....${rst}"
+        echo "${warn}Retrying XMRig Compile....${rst}"
         echo
         cmake .. -DXMRIG_DEPS=scripts/deps && make
       fi
@@ -393,7 +393,7 @@ function install-xmrig-source {
 
         # Add config.json, If user wanted.
         if [[ $config != 2 ]]; then
-          echo "${msg}Applying config.json To XMRig....${rst}"
+          echo "${warn}Applying config.json To XMRig....${rst}"
           echo
           if [[ $config == 1 ]]; then
             cp $dir/xmrig/src/config.json .
@@ -455,21 +455,21 @@ function install-xmrig-source {
         echo "Finished... XMRig Setup From Source."
         echo
         if [[ $addpath == 0 ]]; then
-          echo "${msg}XMRig added to \$PATH, no need to navigate to build dir to run miner${rst}"
+          echo "${warn}XMRig added to \$PATH, no need to navigate to build dir to run miner${rst}"
           echo
         fi
         if [[ $config != 2 ]]; then
-          echo "${msg}Don't forget to edit you config.json file.${rst}"
+          echo "${warn}Don't forget to edit you config.json file.${rst}"
           echo "   nano ./xmrig/build/config.json"
           echo
-          echo "${msg}Configuration Wizard for config.json can be found at;${rst}"
+          echo "${warn}Configuration Wizard for config.json can be found at;${rst}"
           echo "   https://xmrig.com/wizard"
           echo
         fi
 
       else
         echo
-        echo "${err}Build Failed.${rst} Something Went Really Wrong!"
+        echo "${error}Build Failed.${rst} Something Went Really Wrong!"
         echo
       fi      
     fi
@@ -478,21 +478,31 @@ function install-xmrig-source {
 function update-xmrig-source {
 
       if [[ -e $dir/xmrig/.git ]]; then
-        xmrig-current-ver=$($dir/xmrig/build/xmrig --version | grep XMRig | sed "s/XMRig //")
+        current=$($dir/xmrig/build/xmrig --version | grep XMRig | sed "s/XMRig //")
         echo
-        echo "${info}XMRig Install Found...${rst}"
+        echo "${info}Found...${rst} XMRig Install."
         echo
-        echo "${msg}Starting... XMRig Update.${rst}"
+        echo "${warn}Pulling...${rst} XMRig Update."
         echo
         cd $dir/xmrig
         git pull
         cd $dir/xmrig/build
         echo
-        echo "${info}Finished... XMRig Update.${rst}"
-        echo
-        echo "${msg}Compiling XMRig....${rst}"
+        echo "${warn}Compiling...${rst} XMRig"
         echo
         cmake .. && make
+        new=$($dir/xmrig/build/xmrig --version | grep XMRig | sed "s/XMRig //")
+        if [[ $current == $new ]]; then
+          echo
+          echo "${warn}XMRig.${rst} Already Up To Date."
+          echo
+        fi
+        if [[ $current < $new ]]; then
+          echo
+          echo "${info}XMRig.${rst} Update Succes."
+          echo "   $current >> $new"
+          echo
+        fi
       else
         whiptail --title "ERROR"  --yesno "\nDid not find XMRig installed.\nWould you like to install now?" 12 50
         case $? in
@@ -599,7 +609,7 @@ if [[ $whiptail == "" ]]; then
   apt-get install whiptail -y > /dev/null 2>&1
   whiptail=$(which whiptail)
   if [[ $whiptail == "" ]]; then
-    echo "${err}Failed. Aborting.${rst} Install whiptail first."
+    echo "${error}Failed. Aborting.${rst} Install whiptail first."
     exit 0
   else
     echo "${info}Success.${rst}"
